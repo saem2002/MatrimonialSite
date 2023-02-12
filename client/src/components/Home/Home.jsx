@@ -6,17 +6,12 @@ import { AccountContext } from '../../context/AccountProvider';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
-import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import './Home.css'
-import { Checkbox, Chip, CircularProgress, Menu, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-
-import { updateuser } from '../../service/Api';
+import { finduser, updateuser } from '../../service/Api';
 import Select from 'react-select'
-
+import form_image from '../../Pics/Form.png'
+import { TextField } from '@mui/material';
 
 const Home = ({ notify }) => {
   const navigate = useNavigate();
@@ -45,8 +40,16 @@ const Home = ({ notify }) => {
   const [open, setopen] = useState(false);
   let value
   const handlechange = (e) => {
-      value = e.target.value;
-      setcontact(value);
+    value = e.target.value;
+    setcontact(value);
+  }
+  const handlechange2 = (e) => {
+    value = e.target.value;
+    setsalary(value);
+  }
+  const handlechange3 = (e) => {
+    value = e.target.value;
+    setdescription(value);
   }
   const handleopen = () => {
     setopen(true);
@@ -58,6 +61,8 @@ const Home = ({ notify }) => {
   const [age, setage] = useState('');
   const [gender, setgender] = useState('');
   const [religion, setreligion] = useState('');
+  const [salary, setsalary] = useState('');
+  const [description, setdescription] = useState('');
   const postDetails = async (e) => {
 
     e.preventDefault();
@@ -65,6 +70,8 @@ const Home = ({ notify }) => {
     const data = new FormData();
     data.append('image', images);
     data.append('phone', contact);
+    data.append('salary', salary);
+    data.append('description', description);
     data.append('age', age.value);
     data.append('gender', gender.value);
     data.append('religion', religion.value);
@@ -95,7 +102,7 @@ const Home = ({ notify }) => {
     { value: '30', label: '30' },
     { value: '31', label: '31' },
     { value: '32', label: '32' },
-    { value: '33', label: '33' }, 
+    { value: '33', label: '33' },
     { value: '34', label: '34' },
     { value: '35', label: '35' },
     { value: '36', label: '36' },
@@ -105,7 +112,7 @@ const Home = ({ notify }) => {
     { value: '40', label: '40' },
     { value: '41', label: '41' },
     { value: '42', label: '42' },
-    { value: '43', label: '43' }, 
+    { value: '43', label: '43' },
     { value: '44', label: '44' },
     { value: '45', label: '45' },
   ];
@@ -128,64 +135,102 @@ const Home = ({ notify }) => {
     { value: 'Other', label: 'Other' },
 
   ];
-  
+
+  useEffect(() => {
+    const userloggedIn = async (req, res) => {
+      const localdata = localStorage.getItem('matrimonialLoginToken');
+      const localdata2 = localStorage.getItem('Matrimonialinfoadded');
+
+      const token = JSON.parse(localdata);
+      const userinfo = JSON.parse(localdata2);
+      console.log(token)
+      console.log(userinfo)
+      if (token === null || !token) {
+        navigate('/login');
+      }
+      else if (userinfo == null || !userinfo) {
+        navigate('/')
+
+      } else {
+         navigate('/userDashboard')
+      }
+      const checkisPresent = await finduser(token);
+      if (checkisPresent) {
+        setAccount(checkisPresent);
+      }
+    }
+    userloggedIn();
+  }, [statechanged]);
   const list = (anchor) => (
     <Box
-      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250, height: '70vh' }}
+      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250, height: '80vh', overflowX: 'hidden' }}
       role="presentation"
     >
       <form style={{ overflow: 'hidden' }} onSubmit={postDetails}>
         <div className='Form_item_div'>
-          <div className='Select_opt_home'>
-            <Select
-            maxMenuHeight={'25vh'}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  width: '15vw',
-                }),
-              }}
-              placeholder="Age"
-              defaultValue={age}
-              onChange={setage}
-              options={agemap}
-            />
-            <Select
-            maxMenuHeight={'25vh'}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  width: '15vw',
-                  
-                  
-                }),
-              }}
-              placeholder="Gender"
-              defaultValue={gender}
-              onChange={setgender}
-              options={gendermap}
-            />
-            <Select
-            maxMenuHeight={'25vh'}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  width: '15vw',
-                }),
-              }}
-              placeholder="Religion"
-              defaultValue={religion}
-              onChange={setreligion}
-              options={religionmap}
-            />
-
+          <div style={{ width: '40%' }}>
+            <img src={form_image} style={{ height: '80vh' }}></img>
           </div>
+          <div>
+            <div className='Select_opt_home'>
+              <Select
+                maxMenuHeight={'25vh'}
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    width: '12vw',
+                  }),
+                }}
+                placeholder="Age"
+                defaultValue={age}
+                onChange={setage}
+                options={agemap}
+              />
+              <Select
+                maxMenuHeight={'25vh'}
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    width: '12vw',
 
 
-          <div className='AddItem_textfields'> <input name="Image" type="number" value={contact} onChange={handlechange}></input></div>
-          <div className='AddItem_textfields'> <input name="Image" type="file" onChange={(e) => setImages(e.target.files[0])}></input></div>
-          <div > <button type='submit' onClick={postDetails} >submit</button></div>
+                  }),
+                }}
+                placeholder="Gender"
+                defaultValue={gender}
+                onChange={setgender}
+                options={gendermap}
+              />
+              <Select
+                maxMenuHeight={'25vh'}
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    width: '12vw',
+                  }),
+                }}
+                placeholder="Religion"
+                defaultValue={religion}
+                onChange={setreligion}
+                options={religionmap}
+              />
 
+
+            </div>
+            <div className='AddItem_textfields'>
+              <TextField
+                id="outlined-multiline-flexible"
+                label="About you"
+                multiline
+                maxRows={4}
+                value={description} onChange={handlechange3}
+              /></div>
+            <div className='AddItem_textfields'><TextField style={{ width: '20vw' }} id="standard-basic" name="salary" label="Salary(per month) in INR(If you are employed)" variant="standard" value={salary} onChange={handlechange2} /> </div>
+            <div className='AddItem_textfields'><TextField name="Image" id="standard-basic" label="Your phone number" variant="standard" value={contact} onChange={handlechange} /> </div>
+            <div style={{ marginBottom: '2vh', fontWeight: '600' }}>Choose you profile pic</div>
+            <div className='AddItem_textfields'> <input name="Image" type="file" onChange={(e) => setImages(e.target.files[0])}></input></div>
+            <div > <button type='submit' className='btn_submit' onClick={postDetails} >submit</button></div>
+          </div>
         </div>
 
       </form>
@@ -195,7 +240,7 @@ const Home = ({ notify }) => {
 
   return (
     <>
-      
+
 
       <div style={{ backgroundColor: 'black' }}>
         <header className='navbar_home '>
@@ -220,7 +265,7 @@ const Home = ({ notify }) => {
         </div>
         <div className='Video_heading'>
           <h2>No.1 Matrimony Site for Professionals & top Profiles in India </h2>
-
+          
           <div class="button" id="button-7">
             <div id="dub-arrow"><img src="https://github.com/atloomer/atloomer.github.io/blob/master/img/iconmonstr-arrow-48-240.png?raw=true" alt="" /></div>
 
@@ -228,7 +273,7 @@ const Home = ({ notify }) => {
               {['bottom'].map((anchor) => (
                 <>
                   <Button sx={{ color: '#BFC0C0' }} onClick={() => handleopen()}> <a  >Let's Begin</a></Button>
-                  {/* <Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button> */}
+
                   <Drawer
                     open={open}
                     anchor={anchor}

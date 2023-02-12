@@ -29,6 +29,17 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
     },
+    salary: {
+        type: Number,
+    },
+    description: {
+        type: String,
+    },
+    block:
+    {
+        type:Number,
+        default:0
+    },
     token: {
         type: String,
     }
@@ -49,16 +60,31 @@ userSchema.methods.generateAuthToken = async function () {
     }
 
 }
-userSchema.methods.commitchanges = async function (age, religion, gender, image,phone) {
+userSchema.methods.commitchanges = async function (age, religion, gender, image,phone,description,salary) {
     try {
 
         this.age = age;
         this.religion = religion;
         this.gender = gender;
-        this.image = image;
-        this.phone = phone
+        this.image = image?image:'null';
+        this.phone = phone;
+        this.description = description;
+        this.salary = salary;
         await this.save();
         return this.age;
+
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+userSchema.methods.blockuserchanges = async function (block) {
+    try {
+
+        this.block = block;
+
+        await this.save();
+        return this.block;
 
     } catch (error) {
         console.log(error);

@@ -37,6 +37,24 @@ export const getUsers = async () => {
     }
 }
 
+export const noofusers = async () => {
+    try {
+        let response = await axios.get(`${url}/noofusers`);
+        return response.data
+    } catch (error) {
+        console.log('Error while calling getUsers API ', error);
+    }
+}
+export const sendRequestTouser = async () => {
+    try {
+        let response = await axios.post(`${url}/send`);
+        return response.data
+    } catch (error) {
+        console.log('Error while calling getUsers API ', error);
+    }
+}
+
+
 export const getsubcategory = async (age,gender,religion,currGender) => {
     try {
         let response = await axios.get(`${url}/getsubcategory/${age}/${gender}/${religion}/${currGender}`);
@@ -58,6 +76,14 @@ export const finduser = async (token) => {
 export const updateuser = async (data,id) => {
     try {
         let response = await axios.patch(`${url}/updateuser/${id}`,data);
+        return response
+    } catch (error) {
+        console.log('Error while calling getUsers API ', error);
+    }
+}
+export const blockthisuser = async (email) => {
+    try {
+        let response = await axios.patch(`${url}/blockuser/${email}`);
         return response
     } catch (error) {
         console.log('Error while calling getUsers API ', error);

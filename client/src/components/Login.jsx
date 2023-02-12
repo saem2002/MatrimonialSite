@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import { register, signin } from '../service/Api';
-import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'
 import './Login.css'
 import { useContext } from 'react';
 import { AccountContext } from '../context/AccountProvider';
-import Checkbox from '@mui/material/Checkbox';
+
 
 const Login = ({ notify }) => {
     const navigate = useNavigate();
     const [page, setpage] = useState('signup');
-    const [loginasArtist, setloginasArtist] = useState(false)
     const { Account, setAccount,statechanged,setstatechanged } = useContext(AccountContext);
 
     let name, value
@@ -43,11 +41,12 @@ const Login = ({ notify }) => {
 
         const res = await signin(Account);
         console.log(res)
-        if (res === '400' || !res) {
+        if (res == '400' || !res) {
             console.log("hello")
             notify("Invalid credentials");
         } else if (res == '200') {
             notify("user logged in successfully");
+            localStorage.setItem('Matrimonialinfoadded', 'true')
             navigate('/');
             setstatechanged(statechanged+1)
         } else {

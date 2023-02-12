@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import './userDashboard.css'
 import Navbar from '../Navbar/Navbar'
 import { useEffect } from 'react';
@@ -7,16 +7,17 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Button, Drawer, Fade } from '@mui/material';
+import { Button, Drawer, Fade, Skeleton } from '@mui/material';
 import { getsubcategory } from '../../service/Api';
 import weddingpic from '../../Pics/WeddingPic.png'
 import Select from 'react-select'
 import { Box } from '@mui/system';
+import { AccountContext } from '../../context/AccountProvider';
 
 const UserDashboard = () => {
     const [open, setopen] = useState(false);
     const [selectdata, setselectdata] = useState('');
-
+    const { Account } = useContext(AccountContext);
     const handleopen = async (data) => {
 
         setselectdata(data);
@@ -27,25 +28,29 @@ const UserDashboard = () => {
     }
     const list = (anchor) => (
         <Box
-            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250, width: '30vw', marginTop: '50px' }}
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250, maxWidth: '30vw', width: '30vw', marginTop: '50px', overflowX: 'hidden' }}
             role="presentation"
         >
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-                <img style={{ maxHeight: '60vh', borderRadius: '50%',marginTop:'6vh',marginBottom:'5vh' }} src={selectdata.image}></img>
-                <div style={{marginBottom:'3vh',fontWeight:'bold',marginLeft:'1vw'}}>Contact details</div>
-                <div style={{marginLeft:'1vw'}} >Email: <span style={{cursor:'pointer',color:'blue',textDecoration:'underline'}}>{selectdata.email}</span></div>
-                <div style={{marginLeft:'1vw'}}>Phone number : <span style={{cursor:'pointer',color:'blue',textDecoration:'underline'}}>{selectdata.phone}</span></div>
+                <img
+                    style={{ marginTop: '2vh', marginBottom: '3vh', borderRadius: '20px', height: '60vh', width: '30vw ', objectFit: 'scale-down' }}
+                    src={selectdata.image}
+
+                />
+
+                <div style={{ marginBottom: '3vh', fontWeight: 'bold', marginLeft: '1vw' }}>Contact details</div>
+                <div style={{ marginBottom: '2vh',marginLeft: '1vw' }} >Email: <span style={{ cursor: 'pointer', color: 'grey', textDecoration: 'underline' }}>{selectdata.email}</span></div>
+                <div style={{ marginBottom: '2vh',marginLeft: '1vw' }}>Phone number : <span style={{ cursor: 'pointer', color: 'grey', textDecoration: 'underline' }}>{selectdata.phone}</span></div>
+                <div style={{marginBottom: '2vh', marginLeft: '1vw', }} >Description: <span style={{ cursor: 'pointer', color: 'grey', textDecoration: 'underline', overflowX: 'scroll' }}>{selectdata.description ? selectdata.description : "NA"}</span></div>
+                <div style={{ marginBottom: '2vh',marginLeft: '1vw' }} >Salary: <span style={{ cursor: 'pointer', color: 'grey', textDecoration: 'underline' }}>{selectdata.salary ? selectdata.salary : "NA"}</span></div>
+
             </div>
         </Box>
     );
 
-    const [Itemdata, setItemdata] = useState([]);
     const [filterdata, setfilterdata] = useState([]);
     const [count, setcount] = useState(0);
     const [change, setchange] = useState(true);
-
-    const [divvisibility, setdivvisibility] = useState('');
-    const [divvisibility2, setdivvisibility2] = useState('none');
     const [age, setage] = useState(1);
     const [gender, setgender] = useState('gender');
     const [religion, setreligion] = useState('religion');
@@ -79,44 +84,32 @@ const UserDashboard = () => {
     ];
     useEffect(() => {
         const allItems = async () => {
-
+            const localdata = localStorage.getItem('matrimonialLoginToken');
+            const token = JSON.parse(localdata);
             const data = await getsubcategory(age === 1 ? 1 : age.value, gender === 'gender' ? gender : gender.value,
-                religion === 'religion' ? religion : religion.value);
+                religion === 'religion' ? religion : religion.value, token);
 
             setfilterdata(data);
 
 
         }
 
-        const countData = () => {
 
-            if (count >= Itemdata.length - 1) {
-                setdivvisibility('none')
-            }
-            else {
-                setdivvisibility('')
-            }
-            if (count > 10) {
-                setdivvisibility2('')
-
-            } else {
-                setdivvisibility2('none')
-            }
-
-        }
 
         allItems();
 
-        countData();
 
-    }, [count]);
+
+    }, []);
 
 
 
     const postdata = async () => {
         setfilterdata(-1);
+        const localdata = localStorage.getItem('matrimonialLoginToken');
+        const token = JSON.parse(localdata);
         const data = await getsubcategory(age === 1 ? 1 : age.value, gender === 'gender' ? gender : gender.value,
-            religion === 'religion' ? religion : religion.value);
+            religion === 'religion' ? religion : religion.value, token);
         setTimeout(() => {
             setfilterdata(data);
         }, 2000);
@@ -226,34 +219,46 @@ const UserDashboard = () => {
                     </div>
 
                 </div>
-                <div className='Items_Div_Home' style={{ marginLeft: open && '30vw' }}>
-                    {filterdata === -1 && "skeleton"}
+                <div className='Items_Div_Home' style={{ marginLeft: open && '14vw' }}>
+                    {filterdata === -1 &&
+                        <>
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                            <Skeleton sx={{ boxShadow: '0px 0px black, -0.7em 0 .3em grey', marginBottom: '1vh' }} variant="rectangular" width={250} height={300} />
+                        </>}
                     {filterdata.length === 0 && "No items are added yet"}
                     {filterdata && filterdata.length > 0 && filterdata.map((data, index) =>
                         <>
+                            {Account.email !== data.email &&
 
 
-                            <Card sx={{ maxWidth: 250, minWidth: 250, width: '100%', borderRadius: '0px', marginBottom: '2vh' }}>
-                                <CardMedia
-                                    sx={{ height: 200, backgroundSize: 150 }}
-                                    image={data.image}
-                                    title="green iguana"
-                                />
-                                <CardContent>
-                                    <div>
-                                        <div className='Font_card_details'><span className='Span_card'>Name:</span>  {data.name}</div>
-                                        <div className='Font_card_details'><span className='Span_card'>Age:</span>  {data.age}</div>
-                                        <div className='Font_card_details'><span className='Span_card'>Religion:</span>  {data.religion}</div>
+                                <Card sx={{ maxHeight: 370, maxWidth: 250, minWidth: 250, width: '100%', borderRadius: '0px', marginBottom: '2vh' }}>
+                                    <Box style={{ backgroundColor: 'black' }}>
+                                        <img
+                                            style={{ height: '200px', width: '250px', objectFit: 'scale-down' }}
+                                            src={data.image}
 
-                                    </div>
-                                </CardContent>
-                                <CardActions>
+                                        />
+                                    </Box>
+                                    <CardContent>
+                                        <div>
+                                            <div className='Font_card_details'><span className='Span_card'>Name:</span>  {data.name}</div>
+                                            <div className='Font_card_details'><span className='Span_card'>Age:</span>  {data.age}</div>
+                                            <div className='Font_card_details'><span className='Span_card'>Religion:</span>  {data.religion}</div>
 
-                                    <Button size="small" onClick={() => handleopen(data)}>Contact</Button>
-                                </CardActions>
-                            </Card>
+                                        </div>
+                                    </CardContent>
+                                    <CardActions>
 
+                                        <Button size="small" onClick={() => handleopen(data)}>Contact</Button>
+                                    </CardActions>
 
+                                </Card>
+
+                            }
 
                         </>
                     )}

@@ -1,9 +1,19 @@
 import User from "../modal/User.js";
 import bcrypt from 'bcrypt'
 import cloudinary from 'cloudinary'
-import user from "../modal/User.js";
 
 
+export const noofusers = async (request, response) => {
+    try {
+        const user = await User.find({});
+        const maleuser = await User.find({ gender: 'male' });
+        const femaleuser = await User.find({ gender: 'female' });
+        const ans = { totalusers: user.length, maleusers: maleuser.length, femaleusers: femaleuser.length };
+        response.status(200).json(ans);
+    } catch (error) {
+        response.status(500).json(error);
+    }
+}
 
 export const getUsers = async (request, response) => {
     try {
@@ -20,11 +30,13 @@ export const getsubcategory = async (request, response) => {
     try {
         const age = request.params.age;
         const gender = request.params.gender;
-        const currGender = request.params.currGender;
+        const token = request.params.currGender;
         const religion = request.params.religion;
+        const user = await User.findOne({ token: token });
+        const currGender = user.gender;
         if (age === '1' && gender === 'gender' && religion === 'religion') {
-            const saveGender = currGender==='male'?'female':'male';
-            const users = await User.find({gender:saveGender});
+            const saveGender = currGender === 'male' ? 'female' : 'male';
+            const users = await User.find({ gender: saveGender });
             return response.status(200).json(users)
 
         }
@@ -87,22 +99,67 @@ export const finduser = async (req, res) => {
 }
 export const updateuser = async (request, response) => {
     try {
-        const file = request.files.image;
-        if (!request.body.age || !request.body.religion || !request.body.phone|| !request.body.gender || !file) {
-            response.status(400).json('not data filling')
-            return;
-        }
-        cloudinary.v2.uploader.upload(file.tempFilePath, async (err, result) => {
+
+        if (request.body.image == null) {
+            console.log('hello')
+
+            if (!request.body.age || !request.body.religion || !request.body.phone || !request.body.gender || !request.body.description) {
+                response.status(400).json('not data filling')
+                return;
+            }
+            cloudinary.v2.uploader.upload(request.files.image.tempFilePath, async (err, result) => {
+                const finduser = await User.findOne({ email: request.params.id });
+                if (finduser) {
+                    await finduser.commitchanges(request.body.age, request.body.religion, request.body.gender, result.url, request.body.phone, request.body.description, request.body.salary);
+                    await finduser.save();
+                    response.status(200).json("updated");
+                }
+            })
+        } else {
+
+            if (!request.body.age || !request.body.religion || !request.body.phone || !request.body.gender || !request.body.description) {
+                response.status(400).json('not data filling')
+                return;
+            }
+
             const finduser = await User.findOne({ email: request.params.id });
             if (finduser) {
-                await finduser.commitchanges(request.body.age, request.body.religion, request.body.gender, result.url,request.body.phone);
+                await finduser.commitchanges(request.body.age, request.body.religion, request.body.gender, request.body.image, request.body.phone, request.body.description, request.body.salary);
                 await finduser.save();
                 response.status(200).json("updated");
             }
-        })
+
+
+        }
 
 
 
+
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const blockuser = async (request, response) => {
+    try {
+
+
+
+        const finduser = await User.findOne({ email: request.params.id });
+        if (finduser) {
+            if(finduser.block==1)
+            {
+                await finduser.blockuserchanges(0);
+            }else
+            {
+                await finduser.blockuserchanges(1);
+            }
+           
+            await finduser.save();
+            response.status(200).json("updated");
+        }
     } catch (error) {
         console.log(error)
     }

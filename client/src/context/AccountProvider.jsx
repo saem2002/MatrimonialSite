@@ -8,7 +8,7 @@ export const AccountContext = createContext(null);
 
 const AccountProvider = ({ children }) => {
     const navigate=useNavigate();
-    const [Account, setAccount] = useState({name:"",email:"",password:"",age:"",religion:"",gender:"",image:"",contact:""});
+    const [Account, setAccount] = useState({name:"",email:"",password:"",age:"",religion:"",gender:"",image:"",contact:"",salary:"",description:"",block:0});
     const[statechanged,setstatechanged]=useState(0);
     useEffect(() => {
         const userloggedIn = async(req,res)=>
@@ -30,11 +30,15 @@ const AccountProvider = ({ children }) => {
             
           }else
           {
-            navigate('/userDashboard')
+            // navigate('/userDashboard')
           }
           const checkisPresent = await finduser(token);
           if(checkisPresent)
           {
+            if(checkisPresent.block==1)
+            {
+              navigate('/block')
+            }
             setAccount(checkisPresent);
           }
         }
